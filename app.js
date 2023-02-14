@@ -2,27 +2,27 @@ const express = require('express')
 const app = express()
 const port = 3000
 const { fetchData } = require('./httpAPI')
-const { checkRateLimit, getRedisValue } = require('./rateLimiting')
+// const { checkRateLimit, getRedisValue } = require('./rateLimiting')
+const { rateLimiter, getCountValue } = require('./createRateLimiter')
 
 app.get('/', (req, res) => {
   res.send('This is Backend pretest server.')
 })
 
-// app.use(ipRedisRateLimiter)
 app.get('/data', async (req, res) => {
   let userId = req.query.user
   const ip = req.ip
   let userOverLimit
-  let ipOverLimit = await checkRateLimit(ip, 10, 60)
+  let ipOverLimit = await rateLimiter(ip, 10)
   if (userId !== undefined) {
-    userOverLimit = await checkRateLimit(userId, 5, 60)
+    userOverLimit = await rateLimiter(userId, 5)
   }
 
   if (ipOverLimit || userOverLimit) {
     return res.status(429).send({
       error: 'Too many requests - try again later',
-      ip: await getRedisValue(ip),
-      id: await getRedisValue(userId)
+      ip: await getCountValue(ip),
+      id: await getCountValue(userId)
     })
   }
   if (Number(userId) < 1 || Number(userId) > 1000)
