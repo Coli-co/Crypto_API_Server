@@ -8,8 +8,12 @@ const {
 } = require('./BitstampAPI')
 const app = express()
 const port = 3000
-
 const server = http.createServer(app)
+const redis = require('ioredis')
+const redisClient = new redis({
+  host: 'localhost',
+  port: 6379
+})
 
 app.get('/streaming', (req, res) => {
   return res.send('This route for WebSocket API!')
@@ -21,13 +25,17 @@ const wss = new WebSocketServer.Server({ server })
 // Creating connection using websocket
 wss.on('connection', async (ws) => {
   console.log('WebSocket connection established')
-
+  // create connection to redis
+  redisClient.on('connect', function () {
+    console.log('Connected to Redis')
+  })
   // get Bitstamp websocket server and connect
   const tradeDataServer = await bitstampServer()
   await bitstampConnnect(tradeDataServer)
 
   // sending message to client
   ws.send('Welcome, you are connected!')
+  // check which user subscribe currency pair
 
   // message from client
   ws.on('message', async (data) => {
@@ -38,7 +46,7 @@ wss.on('connection', async (ws) => {
 
   // message from Bitstamp server to my socket server
   let id = 1
-  tradeDataServer.on('message', (data) => {
+  tradeDataServer.on('message', async (data) => {
     let result = JSON.parse(data)
     let temp = {}
     if (result.data.id !== undefined) {
@@ -50,7 +58,12 @@ wss.on('connection', async (ws) => {
         temp['currencyPair'] = currencyPair
         temp['price'] = result.data.price
         // send newest deal price to client
-        ws.send(JSON.stringify(temp))
+        const subscribers = await redisClient.smembers(`${currencyPair}`)
+
+        // send data to each subscriber
+        for (let i = 0; i < subscribers.length; i++) {
+          ws.send(JSON.stringify(temp))
+        }
       }
     }
   })

@@ -1,19 +1,6 @@
 const WebSocket = require('ws')
 const url = 'wss://ws.bitstamp.net'
 
-let currencyPairs = [
-  'btcusd',
-  'btceur',
-  'btcgbp',
-  'btcpax',
-  'ethbtc',
-  'ethusd',
-  'etheur',
-  'ethgbp',
-  'btcusdc',
-  'ethusdc'
-]
-
 const bitstampServer = async () => {
   const BitstampWSS = new WebSocket(url)
   return BitstampWSS
