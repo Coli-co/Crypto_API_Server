@@ -1,5 +1,4 @@
-const redis = require('ioredis')
-
+const { redisClient } = require('./redisConnect.js')
 const currencyPairs = [
   'btcusd',
   'btceur',
@@ -55,11 +54,6 @@ const userData = [
 ]
 
 async function addUserData() {
-  const redisClient = await new redis({
-    host: 'localhost',
-    port: 6379
-  })
-
   redisClient.on('connect', function () {
     console.log('Connected to Redis')
     for (let i = 0; i < userData.length; i++) {

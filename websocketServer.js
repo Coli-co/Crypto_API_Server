@@ -7,14 +7,10 @@ const {
   sendMsgToBitstampServer
 } = require('./BitstampAPI')
 const { calculateOHLC } = require('./oneMinuteOHLC')
+const { redisClient } = require('./redisConnect.js')
 const app = express()
 const port = 3000
 const server = http.createServer(app)
-const redis = require('ioredis')
-// const redisClient = new redis({
-//   host: 'localhost',
-//   port: 6379
-// })
 
 app.get('/streaming', (req, res) => {
   return res.send('This route for WebSocket API!')
@@ -27,10 +23,7 @@ const wss = new WebSocketServer.Server({ server })
 wss.on('connection', async (ws) => {
   console.log('WebSocket connection established')
   // create connection to redis
-  const redisClient = new redis({
-    host: 'localhost',
-    port: 6379
-  })
+
   await redisClient.on('connect', function () {
     console.log('Connected to Redis')
   })

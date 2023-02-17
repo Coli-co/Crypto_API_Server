@@ -2,7 +2,6 @@ const express = require('express')
 const app = express()
 const port = 3000
 const { fetchData } = require('./httpAPI')
-// const { checkRateLimit, getRedisValue } = require('./rateLimiting')
 const { rateLimiter, getCountValue } = require('./createRateLimiter')
 
 app.get('/', (req, res) => {

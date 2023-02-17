@@ -1,13 +1,6 @@
 const redis = require('ioredis')
 const moment = require('moment')
-const redisClient = new redis({
-  host: 'localhost',
-  port: 6379
-})
-
-redisClient.on('connect', function () {
-  console.log('Connected to Redis')
-})
+const { redisClient } = require('./redisConnect')
 
 async function rateLimiter(key, limit) {
   const item = await redisClient.get(key)

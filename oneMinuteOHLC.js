@@ -1,8 +1,4 @@
-const redis = require('ioredis')
-const redisClient = new redis({
-  host: 'localhost',
-  port: 6379
-})
+const { redisClient } = require('./redisConnect.js')
 
 async function calculateOHLC(currencyPair, result) {
   let key = `one_minute_OHLC_${currencyPair}`

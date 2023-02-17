@@ -1,23 +1,15 @@
-const redis = require('ioredis')
-
-const client = new redis({
-  host: 'localhost',
-  port: 6379
-})
-client.on('connect', function () {
-  console.log('Connected to Redis')
-})
+const { redisClient } = require('./redisConnect')
 
 async function checkRateLimit(key, limit, expire) {
   let res
   try {
-    res = await client.incr(key)
+    res = await redisClient.incr(key)
     // check how many seconds are left for the key
-    let time = await client.ttl(key)
+    let time = await redisClient.ttl(key)
 
     // the key does not have an expire time
     if (time === -1) {
-      client.expire(key, expire)
+      redisClient.expire(key, expire)
     }
     if (res > limit) {
       console.log('Rate limit exceeded.')
@@ -29,7 +21,7 @@ async function checkRateLimit(key, limit, expire) {
 }
 
 async function getRedisValue(key) {
-  const count = await client.get(key)
+  const count = await redisClient.get(key)
   return count
 }
 
