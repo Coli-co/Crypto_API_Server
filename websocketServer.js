@@ -6,14 +6,15 @@ const {
   bitstampConnnect,
   sendMsgToBitstampServer
 } = require('./BitstampAPI')
+const { calculateOHLC } = require('./oneMinuteOHLC')
 const app = express()
 const port = 3000
 const server = http.createServer(app)
 const redis = require('ioredis')
-const redisClient = new redis({
-  host: 'localhost',
-  port: 6379
-})
+// const redisClient = new redis({
+//   host: 'localhost',
+//   port: 6379
+// })
 
 app.get('/streaming', (req, res) => {
   return res.send('This route for WebSocket API!')
@@ -26,7 +27,11 @@ const wss = new WebSocketServer.Server({ server })
 wss.on('connection', async (ws) => {
   console.log('WebSocket connection established')
   // create connection to redis
-  redisClient.on('connect', function () {
+  const redisClient = new redis({
+    host: 'localhost',
+    port: 6379
+  })
+  await redisClient.on('connect', function () {
     console.log('Connected to Redis')
   })
   // get Bitstamp websocket server and connect
@@ -44,13 +49,15 @@ wss.on('connection', async (ws) => {
     await sendMsgToBitstampServer(tradeDataServer, JSON.parse(data))
   })
 
-  // message from Bitstamp server to my socket server
+  // assume init id so that it can be compared to newest id
   let id = 1
+  // listen message from Bitstamp server and send data to my socket server
   tradeDataServer.on('message', async (data) => {
     let result = JSON.parse(data)
+
     let temp = {}
     if (result.data.id !== undefined) {
-      // find the newest deal price by newest id
+      // update newest deal price by newest id
       id = Math.max(id, result.data.id)
       if (result.data.id === id) {
         let channelSplit = result.channel.split('_')
@@ -59,10 +66,15 @@ wss.on('connection', async (ws) => {
         temp['price'] = result.data.price
         // send newest deal price to client
         const subscribers = await redisClient.smembers(`${currencyPair}`)
+        // calculate OHLC for currency pairs
+        let OHLC = await calculateOHLC(currencyPair, result)
 
         // send data to each subscriber
         for (let i = 0; i < subscribers.length; i++) {
           ws.send(JSON.stringify(temp))
+          if (OHLC !== undefined) {
+            ws.send(JSON.stringify(OHLC))
+          }
         }
       }
     }
