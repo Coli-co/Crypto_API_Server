@@ -1,4 +1,4 @@
-const { redisClient } = require('./redisConnect')
+const { redisClient } = require('../Redis/redisConnect')
 
 async function checkRateLimit(key, limit, expire) {
   let res

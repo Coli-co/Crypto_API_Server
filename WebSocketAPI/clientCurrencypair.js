@@ -1,4 +1,4 @@
-const { redisClient } = require('./redisConnect.js')
+const { redisClient } = require('../Redis/redisConnect')
 const currencyPairs = [
   'btcusd',
   'btceur',

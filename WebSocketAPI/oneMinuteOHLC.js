@@ -1,4 +1,4 @@
-const { redisClient } = require('./redisConnect.js')
+const { redisClient } = require('../Redis/redisConnect')
 
 async function calculateOHLC(currencyPair, result) {
   let key = `one_minute_OHLC_${currencyPair}`

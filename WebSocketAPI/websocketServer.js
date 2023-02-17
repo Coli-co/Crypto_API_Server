@@ -7,7 +7,7 @@ const {
   sendMsgToBitstampServer
 } = require('./BitstampAPI')
 const { calculateOHLC } = require('./oneMinuteOHLC')
-const { redisClient } = require('./redisConnect.js')
+const { redisClient } = require('../Redis/redisConnect.js')
 const app = express()
 const port = 3000
 const server = http.createServer(app)
@@ -75,7 +75,7 @@ wss.on('connection', async (ws) => {
 
   // connection closed
   ws.on('close', () => {
-    console.log('The client has connected')
+    console.log('WebSocket connection closed.')
   })
   // handling error
   ws.on('error', () => {

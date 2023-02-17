@@ -1,8 +1,11 @@
 const express = require('express')
 const app = express()
 const port = 3000
-const { fetchData } = require('./httpAPI')
-const { rateLimiter, getCountValue } = require('./createRateLimiter')
+const { fetchData } = require('./HTTPAPI/httpAPI')
+const {
+  rateLimiter,
+  getCountValue
+} = require('./RateLimiting/createRateLimiter')
 
 app.get('/', (req, res) => {
   res.send('This is Backend pretest server.')
