@@ -6,7 +6,7 @@ async function calculateOHLC(currencyPair, result) {
   // current price of live ticker
   let price = result.data.price
   let microTimestamp = Number(result.data.microtimestamp)
-  console.log('outer timstamp:', microTimestamp)
+
   if (!item) {
     let body = {
       open: price,
@@ -19,7 +19,8 @@ async function calculateOHLC(currencyPair, result) {
   } else {
     // key exists
     let data = JSON.parse(item)
-    console.log('inner timstamp:', data.microtimestamp)
+    let timeData = data // keep data in one minute
+
     // there is no key property of microTimestamp after returning value, if invoke again, we have to add this so that it can be compare with incoming microTimestamp
     if (!data.microtimestamp) {
       data.microtimestamp = microTimestamp
@@ -27,16 +28,28 @@ async function calculateOHLC(currencyPair, result) {
     }
     let diffTimeInSeconds = (microTimestamp - data.microtimestamp) / 1000000
 
-    let diffTimeInMinute = Math.floor(diffTimeInSeconds / 60)
+    let diffTimeInMinute = diffTimeInSeconds / 60
+    let diffTimeIntegerMinute = Math.floor(diffTimeInMinute)
 
-    // update high and low price at any time
+    // update price any time
     data.high = Math.max(price, data.high)
     data.low = Math.min(price, data.low)
+    data.close = price
     //update redis current data
     redisClient.set(key, JSON.stringify(data))
-    // time's up (one minute)，update close price
-    if (diffTimeInMinute === 1) {
-      data.close = price
+
+    // time's up or over (one minute)
+    if (diffTimeIntegerMinute === 1) {
+      // seconds over one minute
+      if (diffTimeInMinute > 1) {
+        delete timeData.microtimestamp
+
+        redisClient.set(key, JSON.stringify(timeData))
+        return timeData
+      }
+      // equal one minute exactly
+
+      // data.close = price
       delete data.microtimestamp
       redisClient.set(key, JSON.stringify(data))
 
