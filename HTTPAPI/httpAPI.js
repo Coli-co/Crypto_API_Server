@@ -1,7 +1,7 @@
+require('dotenv').config()
 const fetch = require('node-fetch')
 
-const url = 'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty'
-
+const url = process.env.DATA_URL
 function fetchData() {
   return fetch(url)
     .then((response) => {

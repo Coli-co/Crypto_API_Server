@@ -2,7 +2,7 @@
 
 #### 1.HTTP API
 
-- Used fetch package to get data from specific [URL](https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty).
+- Used fetch package to get data from json format of data.
 - Access path through an integer between 1 and 1000 of id.
 
 ```
@@ -64,5 +64,4 @@ npm run seed
 
 ```
 npm run dev
-node WebSocketAPI/websocketServer.js
 ```

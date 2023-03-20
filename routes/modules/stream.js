@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const router = express.Router()
 const WebSocketServer = require('ws')
@@ -9,7 +10,7 @@ const {
 } = require('../../WebSocketAPI/BitstampAPI')
 const { calculateOHLC } = require('../../WebSocketAPI/oneMinuteOHLC')
 const { redisClient } = require('../../Redis/redisConnect.js')
-const port = 3005
+const port = process.env.WEBSOCKET_PORT || 4001
 const server = http.createServer(router)
 
 router.get('/', (req, res) => {
