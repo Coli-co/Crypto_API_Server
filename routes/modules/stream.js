@@ -1,18 +1,18 @@
 const express = require('express')
+const router = express.Router()
 const WebSocketServer = require('ws')
 const http = require('http')
 const {
   bitstampServer,
   bitstampConnnect,
   sendMsgToBitstampServer
-} = require('./BitstampAPI')
-const { calculateOHLC } = require('./oneMinuteOHLC')
-const { redisClient } = require('../Redis/redisConnect.js')
-const app = express()
-const port = 3000
-const server = http.createServer(app)
+} = require('../../WebSocketAPI/BitstampAPI')
+const { calculateOHLC } = require('../../WebSocketAPI/oneMinuteOHLC')
+const { redisClient } = require('../../Redis/redisConnect.js')
+const port = 3005
+const server = http.createServer(router)
 
-app.get('/streaming', (req, res) => {
+router.get('/', (req, res) => {
   return res.send('This route for WebSocket API!')
 })
 
@@ -84,5 +84,7 @@ wss.on('connection', async (ws) => {
 })
 
 server.listen(port, () => {
-  console.log('The WebSocket server is listening on port 3000')
+  console.log(`The WebSocket server is listening on port ${port}`)
 })
+
+module.exports = router
