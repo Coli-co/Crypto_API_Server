@@ -19,7 +19,7 @@ http://loaclhost:3000/data?user=id
 #### 3. WebSocket API
 
 - Connect the Bitstamp websocket server to get Live ticker data of Public channels and send latest price to subscribers.
-- Calculate OHLC(open, high, low, close price) per minute through price and send it back to subscribers.
+- Calculate OHLC(open, high, low, close price) per minute through price and send latest price back to subscribers.
 
 ```
 ws://localhost:3000/streaming
